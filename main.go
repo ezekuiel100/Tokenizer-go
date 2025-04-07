@@ -69,7 +69,11 @@ func (Lexer) isLetter(ch byte) bool {
 }
 
 func (l *Lexer) peekChar() byte {
-	return l.input[l.readPosition]
+	if l.readPosition > len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
 }
 
 func (l *Lexer) skipWhiteSpace() {
