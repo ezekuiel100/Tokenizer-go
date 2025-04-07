@@ -8,58 +8,72 @@ type Token struct {
 }
 
 type Lexer struct {
-	input    string
-	position int
-	ch       string
+	input        string
+	position     int
+	readPosition int
+	ch           byte
 }
 
 func main() {
 	lexer := Lexer{
-		input:    "let x = 6",
-		position: 0,
-		ch:       "",
+		input: "let x = 6",
 	}
 
-	for len(lexer.input)-1 >= lexer.position {
-		lexer.readChar()
+	lexer.readChar()
+
+	for lexer.readPosition < len(lexer.input) {
+		lexer.createToken()
 	}
 
 }
 
-func (l *Lexer) createToken() Token {
+func (l *Lexer) createToken() {
+	var tok Token
+	l.skipWhiteSpace()
 
 	switch l.ch {
-	case "+":
-		return Token{token: "PLUS", literal: l.ch}
-	case "=":
-		return Token{token: "EQUAL", literal: l.ch}
+	case '+':
+		tok = Token{token: "PLUS", literal: string(l.ch)}
+	case '=':
+		tok = Token{token: "EQUAL", literal: string(l.ch)}
+	case 0:
+		tok = Token{token: "EOF", literal: ""}
 	default:
 		if l.isLetter(l.ch) {
 			start := l.position
 			for l.isLetter(l.peekChar()) {
-				l.position++
+				l.readChar()
 			}
-
-			return Token{token: "IDENT", literal: l.input[start : l.position+1]}
+			tok = Token{token: "IDENT", literal: l.input[start:l.readPosition]}
 		}
 
 	}
-	return Token{}
+
+	l.readChar()
+	fmt.Println(tok)
 }
 
 func (l *Lexer) readChar() {
-	l.ch = string(l.input[l.position])
-	x := l.createToken()
-	l.position++
-
-	fmt.Println(x)
+	if l.readPosition >= len(l.input) {
+		l.ch = 0
+	} else {
+		l.ch = l.input[l.position]
+		l.position = l.readPosition
+		l.readPosition++
+	}
 
 }
 
-func (Lexer) isLetter(ch string) bool {
-	return (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch == "_"
+func (Lexer) isLetter(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
 }
 
-func (l *Lexer) peekChar() string {
-	return string(l.input[l.position+1])
+func (l *Lexer) peekChar() byte {
+	return l.input[l.readPosition]
+}
+
+func (l *Lexer) skipWhiteSpace() {
+	if l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.readChar()
+	}
 }
