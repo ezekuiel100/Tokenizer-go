@@ -16,7 +16,7 @@ type Lexer struct {
 
 func main() {
 	lexer := Lexer{
-		input: "let x = 6",
+		input: "let x = 6  + (5)",
 	}
 
 	lexer.readChar()
@@ -96,5 +96,5 @@ func (l *Lexer) skipWhiteSpace() {
 }
 
 func isDigit(ch byte) bool {
-	return ch >= '0' || ch <= '9'
+	return ch >= '0' && ch <= '9'
 }
