@@ -39,18 +39,22 @@ func (l *Lexer) createToken() Token {
 	switch l.ch {
 	case '+':
 		tok = Token{token: "PLUS", literal: string(l.ch)}
+	case '-':
+		tok = Token{token: "MiNUS", literal: string(l.ch)}
 	case '=':
 		tok = Token{token: "EQUAL", literal: string(l.ch)}
 	case 0:
 		tok = Token{token: "EOF", literal: ""}
 	default:
-		if l.isLetter(l.ch) {
+		if isLetter(l.ch) {
 			start := l.position
-			for l.isLetter(l.ch) {
+			for isLetter(l.ch) {
 				l.readChar()
 			}
 			tok = Token{token: "IDENT", literal: l.input[start:l.position]}
 			return tok
+		} else if isDigit(l.ch) {
+			tok = Token{token: "INT", literal: string(l.ch)}
 		} else {
 			tok = Token{token: "ILLEGAL", literal: string(l.ch)}
 
@@ -73,20 +77,24 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
-func (Lexer) isLetter(ch byte) bool {
+func isLetter(ch byte) bool {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
 }
 
-// func (l *Lexer) peekChar() byte {
-// 	if l.readPosition >= len(l.input) {
-// 		return 0
-// 	} else {
-// 		return l.input[l.readPosition]
-// 	}
-// }
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
 
 func (l *Lexer) skipWhiteSpace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
+}
+
+func isDigit(ch byte) bool {
+	return ch >= '0' || ch <= '9'
 }
